@@ -157,6 +157,15 @@ export default {
     clearHideDelay() {
       clearTimeout(this.hideDelay);
     },
+    resetForm() {
+      this.formData = {
+        title: "",
+        content: "",
+        color: "#FFFFFF",
+      };
+      this.showTitle = false;
+      this.showColors = false;
+    },
   },
 };
 </script>

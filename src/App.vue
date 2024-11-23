@@ -2,7 +2,7 @@
   <div class="wrapper">
     <!-- Form for Creating Notes -->
     <div class="create-note-form">
-      <NoteForm @submit="addNote" />
+      <NoteForm @submit="addNote" ref="noteForm" />
     </div>
 
     <!-- Notes Grid -->
@@ -28,6 +28,7 @@
         @submit="updateNote"
         @delete="deleteNote"
         @close="closeEditor"
+        ref="noteForm"
       />
     </NoteEditor>
   </div>
@@ -51,6 +52,7 @@ export default {
     };
   },
   methods: {
+    // Add a new note
     async addNote(newNote) {
       try {
         const { data, error } = await supabase
@@ -71,16 +73,24 @@ export default {
           throw new Error("No data returned from Supabase.");
         }
 
-        this.notes.push({ ...newNote, id: data[0].id });
+        // Add the new note at the top of the notes array
+        this.notes.unshift({ ...newNote, id: data[0].id });
         this.$refs.toast.showToast("Note added successfully!", "success");
+
+        // Reset the form after successful note creation
+        this.$refs.noteForm.resetForm();
       } catch (error) {
         console.error("Error adding note:", error.message);
       }
     },
+
+    // Open the editor for an existing note
     openEditor(note) {
       this.currentNote = { ...note };
       this.isEditorOpen = true;
     },
+
+    // Update an existing note
     async updateNote(updatedNote) {
       try {
         const { error } = await supabase
@@ -97,17 +107,24 @@ export default {
           throw error;
         }
 
+        // Update the note in the notes array and push it to the front
         const index = this.notes.findIndex((n) => n.id === updatedNote.id);
         if (index !== -1) {
           this.notes[index] = updatedNote;
+          this.notes.unshift(this.notes.splice(index, 1)[0]); // Move updated note to the front
         }
 
         this.closeEditor();
         this.$refs.toast.showToast("Note updated successfully!", "success");
+
+        // Reset the form after successful update
+        this.$refs.noteForm.resetForm();
       } catch (error) {
         console.error("Error updating note:", error.message);
       }
     },
+
+    // Delete a note
     async deleteNote(noteToDelete) {
       try {
         const { error } = await supabase
@@ -120,13 +137,18 @@ export default {
           throw error;
         }
 
+        // Remove the note from the list
         this.notes = this.notes.filter((note) => note.id !== noteToDelete.id);
         this.closeEditor();
         this.$refs.toast.showToast("Note deleted successfully!", "success");
+
+        // Reset the form after deletion
+        this.$refs.noteForm.resetForm();
       } catch (error) {
         console.error("Error deleting note:", error.message);
       }
     },
+
     async fetchNotes() {
       try {
         const { data, error } = await supabase
@@ -135,11 +157,12 @@ export default {
           .order("updated_at", { ascending: false });
         if (error) throw error;
 
-        this.notes = data;
+        this.notes = data; // Initialize notes with data from Supabase
       } catch (error) {
         console.error("Error fetching notes:", error.message);
       }
     },
+
     closeEditor() {
       this.isEditorOpen = false;
       this.currentNote = null;
