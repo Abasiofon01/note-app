@@ -129,7 +129,10 @@ export default {
     },
     async fetchNotes() {
       try {
-        const { data, error } = await supabase.from("notes").select("*");
+        const { data, error } = await supabase
+          .from("notes")
+          .select("*")
+          .order("updated_at", { ascending: false });
         if (error) throw error;
 
         this.notes = data;
