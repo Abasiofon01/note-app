@@ -2,7 +2,7 @@
   <div class="wrapper">
     <!-- Form for Creating Notes -->
     <div class="create-note-form">
-      <NoteForm @submit="addNote" ref="noteForm" />
+      <NoteForm @submit="addNote" ref="createNoteForm" />
     </div>
 
     <!-- Notes Grid -->
@@ -28,7 +28,7 @@
         @submit="updateNote"
         @delete="deleteNote"
         @close="closeEditor"
-        ref="noteForm"
+        ref="editNoteForm"
       />
     </NoteEditor>
   </div>
@@ -78,7 +78,7 @@ export default {
         this.$refs.toast.showToast("Note added successfully!", "success");
 
         // Reset the form after successful note creation
-        this.$refs.noteForm.resetForm();
+        this.$refs.createNoteForm.resetForm();
       } catch (error) {
         console.error("Error adding note:", error.message);
       }
@@ -118,7 +118,7 @@ export default {
         this.$refs.toast.showToast("Note updated successfully!", "success");
 
         // Reset the form after successful update
-        this.$refs.noteForm.resetForm();
+        this.$refs.editNoteForm.resetForm();
       } catch (error) {
         console.error("Error updating note:", error.message);
       }
