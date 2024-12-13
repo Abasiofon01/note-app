@@ -4,6 +4,7 @@
     <div class="create-note-form">
       <NoteForm @submit="addNote" ref="createNoteForm" />
     </div>
+    <Spinner v-if="loading" />
 
     <!-- Notes Grid -->
     <div class="notes-grid">
@@ -41,14 +42,16 @@ import NoteCard from "./components/NoteCard.vue";
 import NoteEditor from "./components/NoteEditor.vue";
 import { supabase } from "./supabase";
 import Toast from "./components/Toast.vue";
+import Spinner from "./components/Spinner.vue";
 
 export default {
-  components: { NoteForm, NoteCard, NoteEditor, Toast },
+  components: { NoteForm, NoteCard, NoteEditor, Toast, Spinner },
   data() {
     return {
       notes: [],
       currentNote: null,
       isEditorOpen: false,
+      loading: false,
     };
   },
   methods: {
@@ -150,16 +153,20 @@ export default {
     },
 
     async fetchNotes() {
+      this.loading = true; // Set loading to true before fetching
       try {
         const { data, error } = await supabase
           .from("notes")
           .select("*")
           .order("updated_at", { ascending: false });
+
         if (error) throw error;
 
         this.notes = data; // Initialize notes with data from Supabase
       } catch (error) {
         console.error("Error fetching notes:", error.message);
+      } finally {
+        this.loading = false; // Set loading to false after the fetch completes
       }
     },
 
